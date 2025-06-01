@@ -1,4 +1,10 @@
 {
   "project_slug": "sb-paper-id",
-  "template": ["iucr"]
+  "templates": {
+    "iucr": {
+      "path":  "./templates/iucr",
+      "title": "iucr",
+      "description": "Template file for the submission of articles to IUCr journals in LaTeX2e"
+    }
+  }
 }

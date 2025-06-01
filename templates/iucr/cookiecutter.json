@@ -1,0 +1,8 @@
+{
+  "project_slug": "sb-paper-id",
+  "_copy_without_render": [
+    "*.cls",
+    "*.tex",
+    "*.bst"
+  ]
+}
