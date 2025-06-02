@@ -33,8 +33,8 @@ In this guide, you will learn to release your source code to GitHub so that by t
 
 ## Start Pre-Release
 1. Review the release GitHub issue created in the previous step.
-2. Make sure the ```PAT_TOKEN``` is configured at the organization or repository level by following the instructions in [Appendix 1](https://github.com/zmx27/scikit-package-manuscript/edit/release-documentation/README.md#appendix-1).
-3. Setup GitHub Pages at the repository level by following the instructions in [Appendix 2](https://github.com/zmx27/scikit-package-manuscript/edit/release-documentation/README.md#appendix-2).
+2. Make sure the ```PAT_TOKEN``` is configured at the organization or repository level by following the instructions in [Appendix 1](https://github.com/zmx27/scikit-package-manuscript/tree/release-documentation?tab=readme-ov-file#appendix-1).
+3. Setup GitHub Pages at the repository level by following the instructions in [Appendix 2](https://github.com/zmx27/scikit-package-manuscript/tree/release-documentation?tab=readme-ov-file#appendix-2).
 4. Confirm the ``maintainer_github_username`` section in ``.github/workflows/build-wheel-release-upload.yml`` is that of the project maintainer.
 5. In your terminal, run ``git checkout main && git pull upstream main`` to sync with the main branch.
 6. (Optional but recommended) Install and run the ``vulture`` tool to identify and manually remove unused or dead code before tagging a release:
