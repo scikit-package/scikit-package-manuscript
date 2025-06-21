@@ -2,6 +2,9 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
+
+import requests
 
 MANUSCRIPT_FILENAME = "manuscript.tex"
 
@@ -13,11 +16,15 @@ def get_scikit_manuscript_dir():
     candidates = []
     for candidate in cookiecutter_dir.iterdir():
         candidates.append(candidate)
-        if (candidate.is_dir() and
-                "scikit-package-manuscript" in candidate.name):
+        if (
+            candidate.is_dir()
+            and "scikit-package-manuscript" in candidate.name
+        ):
             return candidate.resolve()
-    return Path(f"couldn't find scikit-package-manuscript, but did "
-                f"find {*candidates,}")  # noqa E231
+    return Path(
+        f"couldn't find scikit-package-manuscript, but did "
+        f"find {*candidates, }"
+    )  # noqa E231
 
 
 def copy_journal_template_files(journal_template_name, project_dir):
@@ -36,14 +43,18 @@ def copy_journal_template_files(journal_template_name, project_dir):
     cookiecutter_path = get_scikit_manuscript_dir()
     template_dir = cookiecutter_path / "templates" / journal_template_name
     if not template_dir.exists():
-        raise FileNotFoundError(f"Cannot find the provided journal_template: "
-                                f"{journal_template_name}. Please contact the "
-                                f"software developers.")
+        raise FileNotFoundError(
+            f"Cannot find the provided journal_template: "
+            f"{journal_template_name}. Please contact the "
+            f"software developers."
+        )
 
     if not any(template_dir.iterdir()):
-        raise FileNotFoundError(f"Template {journal_template_name} found but "
-                                f"it contains no files. Please contact the "
-                                f"software developers.")
+        raise FileNotFoundError(
+            f"Template {journal_template_name} found but "
+            f"it contains no files. Please contact the "
+            f"software developers."
+        )
     for item in template_dir.iterdir():
         dest = project_dir / item.name
         if item.is_dir():
@@ -60,46 +71,58 @@ def get_user_headers(repo_url):
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         subprocess.run(["git", "clone", repo_url, str(tmp_path)], check=True)
-        for item in tmp_path.glob('**/*'):
+        for item in tmp_path.glob("**/*"):
             if item.is_file() and str(item).endswith(".tex"):
-                headers += item.read_text()+'\n'
+                headers += item.read_text() + "\n"
     return headers
 
 
-def extract_manuscript_packages(manuscript_path):
+def extract_manuscript_keyword_lines(manuscript_path, keyword=r"\usepackage"):
     contents = manuscript_path.read_text(encoding="utf-8")
-    packages, the_rest = split_usepackage_lines(contents)
+    packages, the_rest = split_keyword_lines(contents, keyword=keyword)
     Path(manuscript_path).write_text(the_rest, encoding="utf-8")
     return packages
 
 
-def split_usepackage_lines(headers):
-    usepackage_lines = []
+def split_keyword_lines(content, keyword=r"\usepackage"):
+    """Split the lines containing keyword from the content."""
+    keyword_lines = []
     other_lines = []
-    for line in headers.splitlines():
-        if line.lstrip().startswith(r"\usepackage"):
-            usepackage_lines.append(line)
+    for line in content.splitlines():
+        if line.lstrip().startswith(keyword):
+            keyword_lines.append(line)
         else:
             other_lines.append(line)
-    return "\n".join(usepackage_lines), "\n".join(other_lines)
+    return "\n".join(keyword_lines), "\n".join(other_lines)
 
 
-def insert_below_documentclass(manuscript_text, insert_text):
-    lines = manuscript_text.splitlines()
+def insert_keyword_lines(
+    content, insert_text, location_keyword=r"\documentclass", method="below"
+):
+    """Insert the lines below or above a certain location in the
+    content."""
+    lines = content.splitlines()
     result_lines = []
     inserted = False
-    for line in lines:
-        result_lines.append(line)
-        if not inserted and r"\documentclass" in line:
-            result_lines.append(insert_text)
-            inserted = True
+    if method == "below":
+        for line in lines:
+            result_lines.append(line)
+            if not inserted and location_keyword in line:
+                result_lines.append(insert_text)
+                inserted = True
+    elif method == "above":
+        for line in lines:
+            if not inserted and location_keyword in line:
+                result_lines.append(insert_text)
+                inserted = True
+            result_lines.append(line)
     return "\n".join(result_lines)
 
 
 def recompose_manuscript(manuscript_path, user_packages, user_commands):
     new_header = "\n".join([user_packages, user_commands])
     manuscript_contents = manuscript_path.read_text(encoding="utf-8")
-    manuscript_contents_with_header = insert_below_documentclass(
+    manuscript_contents_with_header = insert_keyword_lines(
         manuscript_contents, new_header
     )
     manuscript_path.write_text(
@@ -107,23 +130,124 @@ def recompose_manuscript(manuscript_path, user_packages, user_commands):
     )
 
 
+def is_url(bib_path):
+    try:
+        urlparse(bib_path)
+        return True
+    except AttributeError:
+        return False
+
+
+def get_bib_path_type(bib_path):
+    if bib_path == "None":
+        return "None"
+    elif is_url(bib_path):
+        return "url"
+    else:
+        return "local"
+
+
+def copy_bib_from_url(repo_url, project_dir):
+    response = requests.get(repo_url)
+    if response.status_code != 200:
+        raise FileNotFoundError(
+            f"Cannot find Github repo {str(repo_url)}."
+            f" Please make sure the URL is correct."
+        )
+    bib_names = []
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        subprocess.run(["git", "clone", repo_url, str(tmp_path)], check=True)
+        for item in tmp_path.glob("**/*"):
+            if item.is_file():
+                dest = project_dir / item.name
+                shutil.copy2(item, dest)
+                if str(item).endswith(".bib"):
+                    bib_names.append(item.name)
+    print(
+        f"{len(bib_names)} bib files are found in {str(repo_url)}."
+        )
+    return bib_names
+
+
+def copy_bib_from_local(bib_path, project_dir):
+    bib_path = Path(bib_path).expanduser()
+    if not bib_path.exists():
+        raise FileNotFoundError(
+            f"Cannot find {str(bib_path)}. "
+            "Please try again after running "
+            f"'touch {str(bib_path)}'."
+        )
+    bib_names = []
+    if bib_path.is_dir():
+        for item in bib_path.glob("**/*"):
+            if item.is_file():
+                dest = project_dir / item.name
+                shutil.copy2(item, dest)
+                if str(item).endswith(".bib"):
+                    bib_names.append(item.name)
+    else:
+        dest = project_dir / bib_path.name
+        shutil.copy2(bib_path, dest)
+        if bib_path.name.endswith(".bib"):
+            bib_names.append(bib_path.name)
+    print(
+        f"{len(bib_names)} bib files are found in {str(bib_path)}."
+        )
+    return bib_names
+
+
+def insert_headers_from_repo(project_dir, manuscript_path, headers_repo_url):
+    if headers_repo_url == "use-scikit-package-default":
+        user_headers_repo_url = (
+            "https://github.com/scikit-package/default-latex-headers.git"
+        )
+    else:
+        user_headers_repo_url = "{{ cookiecutter.latex_headers_repo_url }}"
+    user_headers = get_user_headers(user_headers_repo_url)
+    manuscript_packages = extract_manuscript_keyword_lines(manuscript_path)
+    user_packages, the_rest = split_keyword_lines(user_headers)
+    all_packages = "\n".join([manuscript_packages, user_packages])
+    recompose_manuscript(manuscript_path, all_packages, the_rest)
+
+
+def insert_bibliography_from_path(project_dir, manuscript_path, bib_path):
+    path_type = get_bib_path_type(bib_path)
+    if path_type == "None":
+        return
+    elif path_type == "url":
+        bib_names = copy_bib_from_url(bib_path, project_dir)
+    else:
+        bib_names = copy_bib_from_local(bib_path, project_dir)
+    insert_bibliography = r"\bibliography{" + ", ".join(bib_names) + r"}"
+    manuscript_bibliography = extract_manuscript_keyword_lines(
+        manuscript_path, keyword=r"\bibliography"
+    )
+    all_bibliography = "\n".join(
+        [insert_bibliography, manuscript_bibliography]
+    )
+    manuscript_contents = manuscript_path.read_text(encoding="utf-8")
+    manuscript_content_with_bibliography = insert_keyword_lines(
+        manuscript_contents,
+        all_bibliography,
+        location_keyword=r"\end{document}",
+        method="above",
+    )
+    manuscript_path.write_text(
+        manuscript_content_with_bibliography, encoding="utf-8"
+    )
+
+
 def main():
     project_dir = Path().cwd()
     manuscript_path = project_dir / MANUSCRIPT_FILENAME
-    if ("{{ cookiecutter.latex_headers_repo_url }}" ==
-            "use-scikit-package-default"):
-        user_headers_repo_url = \
-            "https://github.com/scikit-package/default-latex-headers.git"
-    else:
-        user_headers_repo_url = "{{ cookiecutter.latex_headers_repo_url }}"
     copy_journal_template_files(
         "{{ cookiecutter.journal_template }}", project_dir
     )
-    user_headers = get_user_headers(user_headers_repo_url)
-    manuscript_packages = extract_manuscript_packages(manuscript_path)
-    user_packages, the_rest = split_usepackage_lines(user_headers)
-    all_packages = "\n".join([manuscript_packages, user_packages])
-    recompose_manuscript(manuscript_path, all_packages, the_rest)
+    headers_repo_url = "{{ cookiecutter.latex_headers_repo_url }}"
+    insert_headers_from_repo(project_dir, manuscript_path, headers_repo_url)
+    bib_path = "{{ cookiecutter.latex_bibliography_path }}"
+    insert_bibliography_from_path(project_dir, manuscript_path, bib_path)
 
 
 if __name__ == "__main__":
