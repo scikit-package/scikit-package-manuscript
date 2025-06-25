@@ -48,3 +48,14 @@ def test_copy_journal_template_files_bad(
         match=errormessage,
     ):
         copy_journal_template_files(input, project_dir)
+
+
+# C1: There are bib files. Expect all bib name are inserted inserted
+#   into manuscript.
+def test_load_bib_info():
+    assert False
+
+
+# C1: The manuscript path doesn't exist. Expect file not found error.
+def test_load_bib_info_bad():
+    assert False
