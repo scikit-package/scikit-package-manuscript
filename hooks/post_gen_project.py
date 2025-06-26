@@ -134,7 +134,7 @@ def clone_gh_repo(url):
     """
     pass
 
-def load_headers(headers_path, manuscript_path):
+def load_headers(cloned_dir_path, manuscript_path):
     """Loads usepackages.txt and newcommands.txt into manuscript.tex
     header.
 
@@ -143,8 +143,8 @@ def load_headers(headers_path, manuscript_path):
 
     Parameters
     ----------
-    headers_path : Path
-      The path to the location of the usepackages.txt file
+    cloned_dir_path : Path
+      The path to the cloned directory.
     manuscript_path : Path
       The path to the manuscript.tex file
 
@@ -154,7 +154,7 @@ def load_headers(headers_path, manuscript_path):
     """
     pass
 
-def load_bib_info(manuscript_path):
+def load_bib_info(cloned_dir_path, manuscript_path):
     """Finds all bib files and loads the names into the \thebibliography
     field.
 
@@ -162,6 +162,8 @@ def load_bib_info(manuscript_path):
 
     Parameters
     ----------
+    cloned_dir_path : Path
+      The path to the cloned directory.
     manuscript_path : Path
       The path to the manuscript.tex file
 

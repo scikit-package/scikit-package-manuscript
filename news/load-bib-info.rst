@@ -1,6 +1,6 @@
 **Added:**
 
-* No news added: refactor `load_bib_info`
+* Add function `load_bib_info` to `post_gen_project.py`.
 
 **Changed:**
 
