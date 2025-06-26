@@ -51,9 +51,12 @@ def test_copy_journal_template_files_bad(
 
 
 # C1: There are bib files in the cloned directory.
-#   Expect all bib name are inserted inserted into manuscript.
+#   Expect all bib name are inserted inserted into manuscript,
+#   and bib files are copied into the dir where manuscript_path
+#   exists.
 # C2: There are no bib files in the cloned directory.
-#   Expect manuscript bib entries will not be modified.
+#   Expect manuscript bib entries will not be modified,
+#   and no files are copied.
 def test_load_bib_info():
     assert False
 
