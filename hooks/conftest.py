@@ -9,15 +9,14 @@ def template_files():
     skm_template_files = {
         "article.cls": r"Contents of article.cls",
         "package-existing-in-manuscript.tex": r"""
-    \documentclass{article}
-    \usepackage{package-in-manuscript}
-    \newcommand{\command_in_anuscript}
-    \begin{document}
-    Contents of manuscript
-    \bibliography{bib-in-manuscript}
-    \bibliographystyle{chicago}
-    \end{document}
-    }
+\documentclass{article}
+\usepackage{package-in-manuscript}
+\newcommand{\command_in_manuscript}
+\begin{document}
+Contents of manuscript
+\bibliography{bib-in-manuscript}
+\bibliographystyle{chicago}
+\end{document}
     """,
     }
     yield skm_template_files

@@ -83,6 +83,16 @@ def split_usepackage_lines(headers):
             other_lines.append(line)
     return "\n".join(usepackage_lines), "\n".join(other_lines)
 
+def split_bib_lines(manuscript_text):
+    bib_lines = []
+    other_lines = []
+    for line in manuscript_text.splitlines():
+        if line.lstrip().startswith(r"\bibliography"):
+            bib_lines.append(line)
+        else:
+            other_lines.append(line)
+    return "\n".join(bib_lines), "\n".join(other_lines)
+
 
 def insert_below_documentclass(manuscript_text, insert_text):
     lines = manuscript_text.splitlines()
@@ -94,6 +104,18 @@ def insert_below_documentclass(manuscript_text, insert_text):
             result_lines.append(insert_text)
             inserted = True
     return "\n".join(result_lines)
+
+def insert_above_enddocument(manuscript_text, insert_text):
+    lines = manuscript_text.splitlines()
+    result_lines = []
+    inserted = False
+    for line in lines:
+        if not inserted and r"\end{document}" in line:
+            result_lines.append(insert_text)
+            inserted = True
+        result_lines.append(line)
+    return "\n".join(result_lines)
+
 
 
 def recompose_manuscript(manuscript_path, user_packages, user_commands):
@@ -171,7 +193,29 @@ def load_bib_info(cloned_dir_path, manuscript_path):
     -------
     None
     """
-    pass
+    if not manuscript_path.exists():
+        raise FileNotFoundError(
+        "Unable to find the path: "
+        f"{str(manuscript_path)}. Please leave an issue "
+        "on GitHub."
+        )
+
+    bib_files = []
+    for item in cloned_dir_path.glob('**/*'):
+        if item.name.endswith(".bib"):
+            bib_files.append(item)
+    if len(bib_files)==0:
+        return
+
+    bib_names = sorted([file.stem for file in bib_files])
+    bib_in_repo = r"\bibliography{" + ", ".join(bib_names) + r"}"
+    manuscript_text = manuscript_path.read_text()
+    bib_in_manuscript, manuscript_without_bib = split_bib_lines(manuscript_text)
+    insert_text = bib_in_repo + "\n" + bib_in_manuscript
+    manuscript_text_with_all_bib = insert_above_enddocument(manuscript_without_bib, insert_text)
+    manuscript_path.write_text(manuscript_text_with_all_bib)
+
+
 
 def remove_temporary_files(tmpdir_path):
     pass

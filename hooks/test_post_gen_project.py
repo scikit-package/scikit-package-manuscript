@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import pytest
-from post_gen_project import copy_journal_template_files, load_bib_info
+
+from hooks.post_gen_project import copy_journal_template_files, load_bib_info
 
 
 def _file_not_found_error_message(file_path):
     message = (
-        "Unable to find the source directory: "
+        "Unable to find the path: "
         f"{str(file_path)}. Please leave an issue "
         "on GitHub."
     )
@@ -78,26 +79,33 @@ def test_load_bib_info(user_filesystem, template_files):
     )
     load_bib_info(source_dir, manuscript_path)
     actual_manuscript_content = manuscript_path.read_text()
-    template_manuscript_content = template_files[
-        "package-existing-in-manuscript.tex"
-    ]
-    expected_manuscript_content = template_manuscript_content.replace(
-        r"\bibliography{bib-in-manuscript}",
-        (
-            r"\bibliography{user-bib-file-1, user-bib-file-2}"
-            r"\bibliography{bib-in-manuscript}"
-        ),
-    )
+    expected_manuscript_content = r"""
+\documentclass{article}
+\usepackage{package-in-manuscript}
+\newcommand{\command_in_manuscript}
+\begin{document}
+Contents of manuscript
+\bibliography{user-bib-file-1, user-bib-file-2}
+\bibliography{bib-in-manuscript}
+\bibliographystyle{chicago}
+\end{document}
+    """
     assert expected_manuscript_content == actual_manuscript_content
+    manuscript_path.write_text(
+        template_files["package-existing-in-manuscript.tex"]
+    )
 
-    Path(source_dir / "user-bib-file-1.bib").unlink
-    Path(source_dir / "user-bib-file-2.bib").unlink
+    Path(source_dir / "user-bib-file-1.bib").unlink()
+    Path(source_dir / "user-bib-file-2.bib").unlink()
     load_bib_info(source_dir, manuscript_path)
     actual_manuscript_content = manuscript_path.read_text()
     expected_manuscript_content = template_files[
         "package-existing-in-manuscript.tex"
     ]
     assert expected_manuscript_content == actual_manuscript_content
+    manuscript_path.write_text(
+        template_files["package-existing-in-manuscript.tex"]
+    )
 
 
 # C1: The manuscript path doesn't exist. Expect file not found error.
