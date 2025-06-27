@@ -82,7 +82,7 @@ def test_load_bib_info(user_filesystem, template_files):
     expected_manuscript_content = r"""
 \documentclass{article}
 \usepackage{package-in-manuscript}
-\newcommand{\command_in_manuscript}
+\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
 \begin{document}
 Contents of manuscript
 \bibliography{user-bib-file-1, user-bib-file-2}

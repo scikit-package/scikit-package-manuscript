@@ -68,61 +68,47 @@ def get_user_headers(repo_url):
 
 def extract_manuscript_packages(manuscript_path):
     contents = manuscript_path.read_text(encoding="utf-8")
-    packages, the_rest = split_usepackage_lines(contents)
+    packages, the_rest = _split_lines_with_keyword(contents, r"\usepackage")
     Path(manuscript_path).write_text(the_rest, encoding="utf-8")
     return packages
 
 
-def split_usepackage_lines(headers):
-    usepackage_lines = []
+def _split_lines_with_keyword(content, keyword):
+    lines_with_keyword = []
     other_lines = []
-    for line in headers.splitlines():
-        if line.lstrip().startswith(r"\usepackage"):
-            usepackage_lines.append(line)
+    for line in content.splitlines():
+        if line.lstrip().startswith(keyword):
+            lines_with_keyword.append(line)
         else:
             other_lines.append(line)
-    return "\n".join(usepackage_lines), "\n".join(other_lines)
-
-def split_bib_lines(manuscript_text):
-    bib_lines = []
-    other_lines = []
-    for line in manuscript_text.splitlines():
-        if line.lstrip().startswith(r"\bibliography"):
-            bib_lines.append(line)
-        else:
-            other_lines.append(line)
-    return "\n".join(bib_lines), "\n".join(other_lines)
+    return "\n".join(lines_with_keyword), "\n".join(other_lines)
 
 
-def insert_below_documentclass(manuscript_text, insert_text):
+def _insert_to_manuscript(manuscript_text, insert_text, location_keyword, method):
     lines = manuscript_text.splitlines()
     result_lines = []
     inserted = False
-    for line in lines:
-        result_lines.append(line)
-        if not inserted and r"\documentclass" in line:
-            result_lines.append(insert_text)
-            inserted = True
-    return "\n".join(result_lines)
+    if method=="below":
+        for line in lines:
+            result_lines.append(line)
+            if not inserted and line.lstrip().startswith(location_keyword):
+                result_lines.append(insert_text)
+                inserted = True
+    elif method=="above":
+        for line in lines:
+            if not inserted and r"\end{document}" in line:
+                result_lines.append(insert_text)
+                inserted = True
+            result_lines.append(line)
 
-def insert_above_enddocument(manuscript_text, insert_text):
-    lines = manuscript_text.splitlines()
-    result_lines = []
-    inserted = False
-    for line in lines:
-        if not inserted and r"\end{document}" in line:
-            result_lines.append(insert_text)
-            inserted = True
-        result_lines.append(line)
     return "\n".join(result_lines)
-
 
 
 def recompose_manuscript(manuscript_path, user_packages, user_commands):
     new_header = "\n".join([user_packages, user_commands])
     manuscript_contents = manuscript_path.read_text(encoding="utf-8")
-    manuscript_contents_with_header = insert_below_documentclass(
-        manuscript_contents, new_header
+    manuscript_contents_with_header = _insert_to_manuscript(
+        manuscript_contents, new_header, r"\documentclass", "below"
     )
     manuscript_path.write_text(
         manuscript_contents_with_header, encoding="utf-8"
@@ -156,7 +142,7 @@ def clone_gh_repo(url):
     """
     pass
 
-def load_headers(cloned_dir_path, manuscript_path):
+def load_headers(headers_path, manuscript_path):
     """Loads usepackages.txt and newcommands.txt into manuscript.tex
     header.
 
@@ -165,8 +151,8 @@ def load_headers(cloned_dir_path, manuscript_path):
 
     Parameters
     ----------
-    cloned_dir_path : Path
-      The path to the cloned directory.
+    headers_path : Path
+      The path to the location of the usepackages.txt and newcommands.txt file
     manuscript_path : Path
       The path to the manuscript.tex file
 
@@ -176,7 +162,7 @@ def load_headers(cloned_dir_path, manuscript_path):
     """
     pass
 
-def load_bib_info(cloned_dir_path, manuscript_path):
+def load_bib_info(bibs_path, manuscript_path):
     """Finds all bib files and loads the names into the \thebibliography
     field.
 
@@ -184,8 +170,8 @@ def load_bib_info(cloned_dir_path, manuscript_path):
 
     Parameters
     ----------
-    cloned_dir_path : Path
-      The path to the cloned directory.
+    bibs_path : Path
+      The path to the location of the bib file.
     manuscript_path : Path
       The path to the manuscript.tex file
 
@@ -201,7 +187,7 @@ def load_bib_info(cloned_dir_path, manuscript_path):
         )
 
     bib_files = []
-    for item in cloned_dir_path.glob('**/*'):
+    for item in bibs_path.glob('**/*'):
         if item.name.endswith(".bib"):
             bib_files.append(item)
     if len(bib_files)==0:
@@ -210,9 +196,9 @@ def load_bib_info(cloned_dir_path, manuscript_path):
     bib_names = sorted([file.stem for file in bib_files])
     bib_in_repo = r"\bibliography{" + ", ".join(bib_names) + r"}"
     manuscript_text = manuscript_path.read_text()
-    bib_in_manuscript, manuscript_without_bib = split_bib_lines(manuscript_text)
+    bib_in_manuscript, manuscript_without_bib = _split_lines_with_keyword(manuscript_text, r"\bibliography")
     insert_text = bib_in_repo + "\n" + bib_in_manuscript
-    manuscript_text_with_all_bib = insert_above_enddocument(manuscript_without_bib, insert_text)
+    manuscript_text_with_all_bib = _insert_to_manuscript(manuscript_without_bib, insert_text, r"\end{document}", "above")
     manuscript_path.write_text(manuscript_text_with_all_bib)
 
 

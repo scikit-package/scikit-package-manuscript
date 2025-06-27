@@ -11,7 +11,7 @@ def template_files():
         "package-existing-in-manuscript.tex": r"""
 \documentclass{article}
 \usepackage{package-in-manuscript}
-\newcommand{\command_in_manuscript}
+\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
 \begin{document}
 Contents of manuscript
 \bibliography{bib-in-manuscript}
@@ -51,6 +51,26 @@ def user_filesystem(
     # create a filesystem with spm in a .cookiecutters directory and
     # template directories called article, other, and another
     # the article template contains a set of files defined in TEMPLATE_FILES
+    #
+    # directory structure:
+    # ├── .cookiecutters
+    # │   └── scikit-package-manuscript
+    # │       └── templates
+    # │           ├── another
+    # │           ├── other
+    # │           └── article
+    # │               ├── article.cls
+    # │               └── package-existing-in-manuscript.tex
+    # ├── duplicated-dir
+    # │   └── usepackage.txt
+    # ├── empty-dir
+    # ├── source-dir
+    # │   ├── newcommands.txt
+    # │   ├── usepackages.txt
+    # │   ├── user-bib-file-1.bib
+    # │   ├── user-bib-file-2.bib
+    # │   └── user-supplied-non-bib-file.tex
+    # └── target-dir
     spm_path = Path(tmp_path / ".cookiecutters" / "scikit-package-manuscript")
     spm_path.mkdir(parents=True, exist_ok=True)
 
