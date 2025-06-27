@@ -1,7 +1,16 @@
 from pathlib import Path
 
 import pytest
-from post_gen_project import copy_journal_template_files
+from post_gen_project import copy_journal_template_files, load_bib_info
+
+
+def _file_not_found_error_message(file_path):
+    message = (
+        "Unable to find the source directory: "
+        f"{str(file_path)}. Please leave an issue "
+        "on GitHub."
+    )
+    return message
 
 
 # C1: multiple files in the template, expect all files will be copied
@@ -57,10 +66,47 @@ def test_copy_journal_template_files_bad(
 # C2: There are no bib files in the cloned directory.
 #   Expect manuscript bib entries will not be modified,
 #   and no files are copied.
-def test_load_bib_info():
-    assert False
+def test_load_bib_info(user_filesystem, template_files):
+    source_dir = user_filesystem / "source-dir"
+    manuscript_path = (
+        user_filesystem
+        / ".cookiecutters"
+        / "scikit-package-manuscript"
+        / "templates"
+        / "article"
+        / "package-existing-in-manuscript.tex"
+    )
+    load_bib_info(source_dir, manuscript_path)
+    actual_manuscript_content = manuscript_path.read_text()
+    template_manuscript_content = template_files[
+        "package-existing-in-manuscript.tex"
+    ]
+    expected_manuscript_content = template_manuscript_content.replace(
+        r"\bibliography{bib-in-manuscript}",
+        (
+            r"\bibliography{user-bib-file-1, user-bib-file-2}"
+            r"\bibliography{bib-in-manuscript}"
+        ),
+    )
+    assert expected_manuscript_content == actual_manuscript_content
+
+    Path(source_dir / "user-bib-file-1.bib").unlink
+    Path(source_dir / "user-bib-file-2.bib").unlink
+    load_bib_info(source_dir, manuscript_path)
+    actual_manuscript_content = manuscript_path.read_text()
+    expected_manuscript_content = template_files[
+        "package-existing-in-manuscript.tex"
+    ]
+    assert expected_manuscript_content == actual_manuscript_content
 
 
 # C1: The manuscript path doesn't exist. Expect file not found error.
-def test_load_bib_info_bad():
-    assert False
+def test_load_bib_info_bad(user_filesystem):
+    source_dir = user_filesystem / "source-dir"
+    manuscript_path = user_filesystem / "not_existing_file"
+    assert not manuscript_path.exists()
+
+    with pytest.raises(
+        FileNotFoundError, match=_file_not_found_error_message(manuscript_path)
+    ):
+        load_bib_info(source_dir, manuscript_path)
