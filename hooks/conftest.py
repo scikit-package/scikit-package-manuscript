@@ -11,6 +11,7 @@ def template_files():
         "package-existing-in-manuscript.tex": r"""
     \documentclass{article}
     \usepackage{package-in-manuscript}
+    \newcommand{\command_in_anuscript}
     \begin{document}
     Contents of manuscript
     \bibliography{bib-in-manuscript}
