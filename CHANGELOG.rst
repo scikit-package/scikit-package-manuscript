@@ -24,4 +24,3 @@ Release notes
 **Fixed:**
 
 * Remove non-latex files in the template to avoid copying duplicate files from user-supplied repo.
-
