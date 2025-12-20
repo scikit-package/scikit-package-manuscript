@@ -10,6 +10,6 @@ jobs:
   release:
     uses: scikit-package/release-scripts/.github/workflows/_release-github.yml@v0
     with:
-      maintainer_GITHUB_username: sbillinge
+      maintainer_github_username: sbillinge
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
