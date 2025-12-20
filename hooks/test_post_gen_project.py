@@ -1,3 +1,4 @@
+import re
 import shutil
 from pathlib import Path
 
@@ -80,9 +81,11 @@ def test_copy_all_files_bad(user_filesystem):
     with pytest.raises(
         FileNotFoundError,
         match=(
-            "Unable to find the source directory: "
-            f"{str(non_existing_source_dir)}. Please leave an issue "
-            "on GitHub."
+            re.escape(
+                "Unable to find the source directory: "
+                f"{str(non_existing_source_dir)}. Please leave an issue "
+                "on GitHub."
+            )
         ),
     ):
         copy_all_files(non_existing_source_dir, project_dir)
@@ -93,9 +96,11 @@ def test_copy_all_files_bad(user_filesystem):
     with pytest.raises(
         FileNotFoundError,
         match=(
-            f"Source directory {str(empty_source_dir)} found "
-            "but it contains no files. Please leave an issue "
-            "on GitHub."
+            re.escape(
+                f"Source directory {str(empty_source_dir)} found "
+                "but it contains no files. Please leave an issue "
+                "on GitHub."
+            )
         ),
     ):
         copy_all_files(empty_source_dir, project_dir)
@@ -110,11 +115,13 @@ def test_copy_all_files_bad(user_filesystem):
     with pytest.raises(
         FileExistsError,
         match=(
-            f"{duplicate_file.name} already exists in "
-            f"{str(dir_already_containing_duplicate_file)}. Please either "
-            "remove this from the user-defined GitHub repo, "
-            "or leave an issue on GitHub if you think the problem is with "
-            "scikit-package."
+            re.escape(
+                f"{duplicate_file.name} already exists in "
+                f"{str(dir_already_containing_duplicate_file)}. Please either "
+                "remove this from the user-defined GitHub repo, "
+                "or leave an issue on GitHub if you think the problem is with "
+                "scikit-package."
+            )
         ),
     ):
         copy_all_files(source_dir, dir_already_containing_duplicate_file)
@@ -265,9 +272,11 @@ def test_load_bib_info_bad(user_filesystem):
     with pytest.raises(
         FileNotFoundError,
         match=(
-            "Unable to find manuscript.tex in "
-            f"{str(project_dir_without_manuscript)}. "
-            "Please leave an issue on GitHub."
+            re.escape(
+                "Unable to find manuscript.tex in "
+                f"{str(project_dir_without_manuscript)}. "
+                "Please leave an issue on GitHub."
+            )
         ),
     ):
         load_bib_info(project_dir_without_manuscript)
