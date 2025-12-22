@@ -6,6 +6,9 @@ on:
     tags:
       - "*" # Trigger on all tags initially, but tag and release privilege are verified in _build-wheel-release-upload.yml
 
+permissions:
+  contents: write
+
 jobs:
   build-release:
     uses: scikit-package/release-scripts/.github/workflows/_build-release-github-no-pypi.yml@v0
