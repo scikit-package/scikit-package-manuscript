@@ -1,6 +1,6 @@
 **Added:**
 
-* No news added: debugging
+* RevTeX template
 
 **Changed:**
 
