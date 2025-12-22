@@ -4,13 +4,6 @@ Release notes
 
 .. current developments
 
-0.2.0
-=====
-
-**Added:**
-
-* RevTeX template
-
 
 0.1.0
 =====
