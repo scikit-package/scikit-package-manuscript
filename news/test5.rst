@@ -1,6 +1,6 @@
 **Added:**
 
-* No news added: another test release
+* Add RevTeX template
 
 **Changed:**
 
