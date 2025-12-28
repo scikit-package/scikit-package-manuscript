@@ -18,5 +18,3 @@ jobs:
       maintainer_github_username: sbillinge
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-    permissions:
-      contents: read
