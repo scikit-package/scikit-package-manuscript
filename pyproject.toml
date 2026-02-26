@@ -6,17 +6,17 @@ build-backend = "setuptools.build_meta"
 name = "scikit-package-manuscript"
 dynamic=['version', 'dependencies']
 authors = [
-  { name="Simon J.L. Billinge", email="sb2896@columbia.edu" },
-  { name="Yucheng Xiao" },
+  {name="Simon J.L. Billinge", email='sbillinge@ucsb.edu'},
+  {name='Yuchen Xiao', email='yx2924@columbia.edu'},
 ]
 maintainers = [
-  { name="Simon J.L. Billinge", email="sb2896@columbia.edu" },
-  { name="Sangjoon Lee", email="bobleesj@gmail.com" },
+  {name="Simon J.L. Billinge", email='sbillinge@ucsb.edu'},
+  {name='Yuchen Xiao', email='yx2924@columbia.edu'},
 ]
 description = "The cookiecutter for creating a new manuscript directory using scikit-package"
 keywords = ['Package template', 'open-source software']
 readme = "README.rst"
-requires-python = ">=3.11, <3.14"
+requires-python = ">=3.12, <3.15"
 classifiers = [
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
@@ -27,9 +27,9 @@ classifiers = [
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Topic :: Scientific/Engineering :: Physics',
         'Topic :: Scientific/Engineering :: Chemistry',
 ]
@@ -52,6 +52,7 @@ namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements/pip.txt"]}
+
 [tool.codespell]
 exclude-file = ".codespell/ignore_lines.txt"
 ignore-words = ".codespell/ignore_words.txt"
