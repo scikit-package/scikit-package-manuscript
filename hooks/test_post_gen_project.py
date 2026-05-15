@@ -137,52 +137,54 @@ def test_copy_all_files_bad(user_filesystem):
         #   a order that packages come before commands.
         (
             ["usepackages.txt", "newcommands.txt"],
-            r"""
-\documentclass{article}
-\usepackage{package-from-user-usepackage}
-\usepackage{package-in-manuscript}
-\newcommand{\command_from_user_newcommands}[1]{\mathrm{#1}}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliography{bib-in-manuscript}
-\bibliographystyle{chicago}
-\end{document}
-""",
+            (
+                "\\documentclass{article}\n"
+                "\\usepackage{package-from-user-usepackage}\n"
+                "\\usepackage{package-in-manuscript}\n"
+                "\\newcommand{\\command_from_user_newcommands}[1]"
+                "{\\mathrm{#1}}\n"
+                "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+                "\\begin{document}\n"
+                "Contents of manuscript\n"
+                "\\bibliography{bib-in-manuscript}\n"
+                "\\bibliographystyle{chicago}\n"
+                "\\end{document}\n"
+            ),
         ),
         # C2: Only usepackages.txt exists. Expect user's usepackages are
-        #   inserted before manuscript's usepackages abd after
+        #   inserted before manuscript's usepackages and after
         #   \begin{documentclass}
         (
             ["usepackages.txt"],
-            r"""
-\documentclass{article}
-\usepackage{package-from-user-usepackage}
-\usepackage{package-in-manuscript}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliography{bib-in-manuscript}
-\bibliographystyle{chicago}
-\end{document}
-""",
+            (
+                "\\documentclass{article}\n"
+                "\\usepackage{package-from-user-usepackage}\n"
+                "\\usepackage{package-in-manuscript}\n"
+                "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+                "\\begin{document}\n"
+                "Contents of manuscript\n"
+                "\\bibliography{bib-in-manuscript}\n"
+                "\\bibliographystyle{chicago}\n"
+                "\\end{document}\n"
+            ),
         ),
         # C3: Only newcommands.txt exists. Expect user's newcommands are
         #   inserted before manuscript's newcommands and after manuscrip'ts
         #   usepackages.
         (
             ["newcommands.txt"],
-            r"""
-\documentclass{article}
-\usepackage{package-in-manuscript}
-\newcommand{\command_from_user_newcommands}[1]{\mathrm{#1}}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliography{bib-in-manuscript}
-\bibliographystyle{chicago}
-\end{document}
-""",
+            (
+                "\\documentclass{article}\n"
+                "\\usepackage{package-in-manuscript}\n"
+                "\\newcommand{\\command_from_user_newcommands}[1]"
+                "{\\mathrm{#1}}\n"
+                "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+                "\\begin{document}\n"
+                "Contents of manuscript\n"
+                "\\bibliography{bib-in-manuscript}\n"
+                "\\bibliographystyle{chicago}\n"
+                "\\end{document}\n"
+            ),
         ),
     ],
 )
@@ -215,30 +217,31 @@ def test_load_headers(
         #   Expect bib names are inserted into the manuscript's bibliography.
         (
             True,
-            r"""
-\documentclass{article}
-\usepackage{package-in-manuscript}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliography{bib-in-spm, user-bib-file-1, user-bib-file-2}
-\bibliographystyle{chicago}
-\end{document}
-""",
+            (
+                "\\documentclass{article}\n"
+                "\\usepackage{package-in-manuscript}\n"
+                "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+                "\\begin{document}\n"
+                "Contents of manuscript\n"
+                "\\bibliography"
+                "{bib-in-spm, user-bib-file-1, user-bib-file-2}\n"
+                "\\bibliographystyle{chicago}\n"
+                "\\end{document}\n"
+            ),
         ),
         # C2: manuscript.tex exists in the directory, but bib files don't.
         #   Expect the manuscript.tex content doesn't change.
         (
             False,
-            r"""
-\documentclass{article}
-\usepackage{package-in-manuscript}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliographystyle{chicago}
-\end{document}
-""",
+            (
+                "\\documentclass{article}\n"
+                "\\usepackage{package-in-manuscript}\n"
+                "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+                "\\begin{document}\n"
+                "Contents of manuscript\n"
+                "\\bibliographystyle{chicago}\n"
+                "\\end{document}\n"
+            ),
         ),
     ],
 )
@@ -294,16 +297,16 @@ def test_initialize_project(user_filesystem, mock_home, mock_clone, tmpdir):
         initialize_project("article", manuscript_name, user_repo_url)
         actual_manuscript_path = Path(tmpdir) / manuscript_name
         actual_manuscript_content = actual_manuscript_path.read_text()
-        expected_manuscript_content = r"""
-\documentclass{article}
-\usepackage{package-from-user-usepackage}
-\usepackage{package-in-manuscript}
-\newcommand{\command_from_user_newcommands}[1]{\mathrm{#1}}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliography{bib-in-spm, user-bib-file-1, user-bib-file-2}
-\bibliographystyle{chicago}
-\end{document}
-"""
+        expected_manuscript_content = (
+            "\\documentclass{article}\n"
+            "\\usepackage{package-from-user-usepackage}\n"
+            "\\usepackage{package-in-manuscript}\n"
+            "\\newcommand{\\command_from_user_newcommands}[1]{\\mathrm{#1}}\n"
+            "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+            "\\begin{document}\n"
+            "Contents of manuscript\n"
+            "\\bibliography{bib-in-spm, user-bib-file-1, user-bib-file-2}\n"
+            "\\bibliographystyle{chicago}\n"
+            "\\end{document}\n"
+        )
         assert expected_manuscript_content == actual_manuscript_content
