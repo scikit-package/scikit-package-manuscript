@@ -9,17 +9,17 @@ import pytest
 def template_files():
     spm_template_files = {
         "article-cls-in-spm.cls": r"Contents of article-cls-in-spm.cls",
-        "manuscript-in-spm.tex": r"""
-\documentclass{article}
-\usepackage{package-in-manuscript}
-\newcommand{\command_in_manuscript}[1]{\mathbf{#1}}
-\begin{document}
-Contents of manuscript
-\bibliography{bib-in-manuscript}
-\bibliographystyle{chicago}
-\end{document}
-""",
-        "bib-in-spm.bib": r"""Contents of bib-in-spm.bib""",
+        "manuscript-in-spm.tex": (
+            "\\documentclass{article}\n"
+            "\\usepackage{package-in-manuscript}\n"
+            "\\newcommand{\\command_in_manuscript}[1]{\\mathbf{#1}}\n"
+            "\\begin{document}\n"
+            "Contents of manuscript\n"
+            "\\bibliography{bib-in-manuscript}\n"
+            "\\bibliographystyle{chicago}\n"
+            "\\end{document}\n"
+        ),
+        "bib-in-spm.bib": r"Contents of bib-in-spm.bib.",
     }
     yield spm_template_files
 
