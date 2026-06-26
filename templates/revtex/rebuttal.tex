@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+
+% package needed for optional arguments
+\usepackage{fullpage}
+\usepackage{xifthen}
+\usepackage{url}
+\usepackage{xcolor}
+% \usepackage{amsmath, amsthm, amssymb, amsfonts}
+%\usepackage{ulem}
+
+\newcommand{\articlecode}{CODE}
+\newcommand{\articletitle}{The title of the Article}
+
+%%%%%%%%%%%%%%Rebuttal Setup%%%%%%%%%%%%%%%%%%%%
+
+% define counters for reviewers and their points
+\newcounter{reviewer}
+\setcounter{reviewer}{0}
+\newcounter{point}[reviewer]
+\setcounter{point}{0}
+\newcounter{editorpoint}
+\setcounter{editorpoint}{0}
+
+\definecolor{ball-blue}{HTML}{21ABCD}
+
+% This refines the format of how the reviewer/point reference will appear.
+\renewcommand{\thepoint}{\,\thereviewer.\arabic{point}}
+
+\newcommand{\editorsection}{\bigskip \hrule
+ \section*{Editor Comments}}
+
+% command declarations for reviewer points and our responses
+\newcommand{\reviewersection}{\stepcounter{reviewer} \bigskip \hrule
+ \section*{Reviewer \thereviewer}}
+\newenvironment{point}
+ {\refstepcounter{point} \bigskip \noindent {\textbf{Reviewer~\thepoint} } ---\ }
+ {\par }
+\newenvironment{editorpoint}
+ {\refstepcounter{editorpoint} \bigskip \noindent {\textbf{Editor point~\theeditorpoint} } ---\ }
+ {\par }
+\newcommand{\shortpoint}[1]{\refstepcounter{point} \bigskip \noindent
+ {\textbf{Reviewer~Point~\thepoint} } ---~#1\par }
+\newenvironment{reply}
+ {\medskip \noindent \color{ball-blue}\begin{sf}\textbf{Author Reply}:\ }
+ {\medskip \end{sf}}
+\newcommand{\shortreply}[2][]{\medskip \noindent \begin{sf}\textbf{Reply}:\ #2
+ \ifthenelse{\equal{#1}{}}{}{ \hfill \footnotesize (#1)}%
+ \medskip \end{sf}}
+
+% Comment commands
+\newcommand{\journal}{\textit{Physical Review Materials}\xspace}
+
+
+%%%%%%%%%%%%%%%Group Stuff%%%%%%%%%%%%%%%%%%%%%
+
+
+\makeatletter
+\newcommand*{\new}{\@ifnextchar\bgroup{\new@}{\color{red}}}
+\newcommand*{\new@}[1]{{\textcolor{red}{#1}}}
+\makeatother
+
+\begin{document}
+	
+\section*{Response to the reviewers}
+
+\textit{Referee comments to article \articlecode:\\ \articletitle}
+\setlength\parindent{0pt}
+
+\setcounter{reviewer}{0}
+\editorsection
+\begin{editorpoint}
+Copy-paste any editor points verbatim
+\end{editorpoint}
+
+\begin{reply}
+type the reply.  Keep repeating tihs for all the points.  Changes to the manuscript will be captured in a redline version that we generate using latexdiff so don't write text changes here, but do refer to them, something like, ``we therefore rewrote Section II.2 to clarify this point"
+\end{reply}
+
+\reviewersection
+
+\begin{point}
+Copy-paste the reviewer point verbatim
+\end{point}
+
+\begin{reply}
+type the reply.  Keep repeating this for all the points.  Changes to the manuscript will be captured in a redline version that we generate using latexdiff so don't write text changes here, but do refer to them, something like, ``we therefore rewrote Section II.2 to clarify this point"
+\end{reply}
+
+
+% \bibliographystyle{unsrt}
+% \bibliography{billinge-group-bib}
+
+\end{document}
+
